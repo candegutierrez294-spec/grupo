@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Mis Tareas</title>
+
+<style>
+
+body {
+    font-family: Arial, sans-serif;
+    background: #eeeeee;
+    padding: 20px;
+    margin: 0;
+}
+
+.app {
+    max-width: 500px;
+    margin: auto;
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+}
+
+h1 {
+    text-align: center;
+}
+
+#reloj {
+    text-align: center;
+    font-size: 25px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+#agregar {
+    width: 100%;
+    padding: 12px;
+    background: black;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+ul {
+    padding: 0;
+    list-style: none;
+}
+
+li {
+    margin-top: 10px;
+    padding: 12px;
+    background: #eeeeee;
+    border-radius: 8px;
+}
+
+.tarea-texto {
+    font-weight: bold;
+}
+
+.info {
+    margin-top: 5px;
+    font-size: 14px;
+    color: #555;
+}
+
+.botones {
+    margin-top: 10px;
+    display: flex;
+    gap: 8px;
+}
+
+.completar {
+    background: green;
+    color: white;
+}
+
+.borrar {
+    background: red;
+    color: white;
+}
+
+.completa {
+    opacity: 0.5;
+    text-decoration: line-through;
+}
+
+button {
+    border: none;
+    border-radius: 6px;
+    padding: 8px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<h1>📋 Mis Tareas</h1>
+
+<div id="reloj"></div>
+
+<input
+    id="tarea"
+    type="text"
+    placeholder="¿Qué tenés que hacer?"
+>
+
+<input
+    id="fecha"
+    type="date"
+>
+
+<input
+    id="hora"
+    type="time"
+>
+
+<button id="agregar">
+    ➕ Agregar tarea
+</button>
+
+<ul id="lista"></ul>
+
+</div>
+
+<script>
+
+const boton = document.getElementById("agregar");
+const tarea = document.getElementById("tarea");
+const fecha = document.getElementById("fecha");
+const hora = document.getElementById("hora");
+const lista = document.getElementById("lista");
+
+let tareas = [];
+
+
+// RELOJ
+
+function actualizarReloj() {
+
+    const ahora = new Date();
+
+    document.getElementById("reloj").textContent =
+        ahora.toLocaleTimeString("es-AR");
+
+}
+
+setInterval(actualizarReloj, 1000);
+
+actualizarReloj();
+
+
+// NOTIFICACIONES
+
+if ("Notification" in window) {
+
+    Notification.requestPermission();
+
+}
+
+
+// AGREGAR TAREA
+
+boton.addEventListener("click", function() {
+
+    const texto = tarea.value.trim();
+    const fechaElegida = fecha.value;
+    const horaElegida = hora.value;
+
+    if (texto === "") {
+
+        alert("Escribí una tarea.");
+
+        return;
+    }
+
+    if (fechaElegida === "") {
+
+        alert("Elegí una fecha de vencimiento.");
+
+        return;
+    }
+
+    if (horaElegida === "") {
+
+        alert("Elegí una hora.");
+
+        return;
+    }
+
+
+    const nuevaTarea = {
+
+        texto: texto,
+        fecha: fechaElegida,
+        hora: horaElegida,
+        completada: false,
+        avisada: false
+
+    };
+
+
+    tareas.push(nuevaTarea);
+
+    mostrarTareas();
+
+
+    tarea.value = "";
+    fecha.value = "";
+    hora.value = "";
+
+});
+
+
+// MOSTRAR TAREAS
+
+function mostrarTareas() {
+
+    lista.innerHTML = "";
+
+
+    tareas.forEach(function(t, indice) {
+
+        const li = document.createElement("li");
+
+
+        if (t.completada) {
+
+            li.classList.add("completa");
+
+        }
+
+
+        li.innerHTML = `
+
+            <div class="tarea-texto">
+                ${t.texto}
+            </div>
+
+            <div class="info">
+                📅 Vence: ${t.fecha}
+            </div>
+
+            <div class="info">
+                ⏰ Hora: ${t.hora}
+            </div>
+
+            <div class="botones">
+
+                <button class="completar">
+                    ✅ Completar
+                </button>
+
+                <button class="borrar">
+                    ❌ Eliminar
+                </button>
+
+            </div>
+
+        `;
+
+
+        li.querySelector(".completar").addEventListener(
+            "click",
+            function() {
+
+                t.completada = !t.completada;
+
+                mostrarTareas();
+
+            }
+        );
+
+
+        li.querySelector(".borrar").addEventListener(
+            "click",
+            function() {
+
+                tareas.splice(indice, 1);
+
+                mostrarTareas();
+
+            }
+        );
+
+
+        lista.appendChild(li);
+
+    });
+
+}
+
+
+// REVISAR FECHA Y HORA
+
+function revisarTareas() {
+
+    const ahora = new Date();
+
+    const fechaActual =
+        ahora.getFullYear() +
+        "-" +
+        String(ahora.getMonth() + 1).padStart(2, "0") +
+        "-" +
+        String(ahora.getDate()).padStart(2, "0");
+
+
+    const horaActual =
+        String(ahora.getHours()).padStart(2, "0") +
+        ":" +
+        String(ahora.getMinutes()).padStart(2, "0");
+
+
+    tareas.forEach(function(t) {
+
+        if (
+            t.fecha === fechaActual &&
+            t.hora === horaActual &&
+            !t.avisada &&
+            !t.completada
+        ) {
+
+            t.avisada = true;
+
+
+            if (
+                "Notification" in window &&
+                Notification.permission === "granted"
+            ) {
+
+                new Notification(
+                    "⏰ Recordatorio de tarea",
+                    {
+                        body: t.texto
+                    }
+                );
+
+            } else {
+
+                alert(
+                    "⏰ Recordatorio: " +
+                    t.texto
+                );
+
+            }
+
+        }
+
+    });
+
+}
+
+
+setInterval(revisarTareas, 5000);
+
+</script>
+
+</body>
+</html>
