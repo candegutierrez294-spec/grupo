@@ -1,0 +1,9 @@
+{
+  "name": "Mis Tareas",
+  "short_name": "Tareas",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#eeeeee",
+  "theme_color": "#000000",
+  "icons": []
+}
