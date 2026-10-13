@@ -150,7 +150,7 @@ const lista = document.getElementById("lista");
 let tareas = [];
 
 
-// RELOJ
+// RELOJ test
 
 function actualizarReloj() {
 
